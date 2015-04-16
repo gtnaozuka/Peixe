@@ -3,8 +3,8 @@ package Frame;
 import Object.Bubbles;
 import Object.Fish;
 import Object.Shark;
-import Util.GeomTransform;
 import Util.Util;
+import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -17,14 +17,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
 
-public class MyFrame extends Frame implements Runnable {
+public class MyFrame extends Frame {
 
     private final Dimension screensize;
 
     private final Fish fish;
     private final Shark shark;
     private static Bubbles bubbles;
-    
+
     private static Thread tRepaint;
 
     public MyFrame() {
@@ -34,7 +34,7 @@ public class MyFrame extends Frame implements Runnable {
         fish = new Fish();
         shark = new Shark();
         bubbles = new Bubbles(screensize);
-        tRepaint = new Thread(this);
+        tRepaint = new Thread(new Animation(this));
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -83,20 +83,12 @@ public class MyFrame extends Frame implements Runnable {
 
     public static void main(String[] args) {
         MyFrame mf = new MyFrame();
-        
+
         bubbles.gettCreateBubbles().start();
         bubbles.gettUpdateBubbles().start();
         tRepaint.start();
- 
-        mf.setVisible(true);
-    }
 
-    @Override
-    public void run() {
-        while (true) {
-            Util.sleep(150);
-            repaint();
-        }
+        mf.setVisible(true);
     }
 
     private class KeyboardAction extends KeyAdapter {
@@ -106,6 +98,23 @@ public class MyFrame extends Frame implements Runnable {
             int keyCode = e.getKeyCode();
             fish.checkFishMove(keyCode);
             shark.checkSharkMove(keyCode);
+        }
+    }
+
+    private class Animation extends Applet implements Runnable {
+
+        private final Frame frame;
+
+        public Animation(Frame frame) {
+            this.frame = frame;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                Util.sleep(150);
+                frame.repaint();
+            }
         }
     }
 }
